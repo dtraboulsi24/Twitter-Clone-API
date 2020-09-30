@@ -1,0 +1,40 @@
+cd /mnt/c/Users/dtrab/OneDrive/School/20Fall/CPSC449/Projects/Project2/
+flask init
+FLASK_APP=api_User flask init
+
+flask run / foreman start
+
+/api/v1/resources/users
+POST - createUser(username, email, password)
+Registers a new user account.
+
+***USER
+/users
+POST - createUser(username, email, password)
+Registers a new user account.
+
+/users/auth
+POST ● authenticateUser(username, hashed_password)
+Returns true if the password matches the username.
+
+/users/<username>/follow
+PUT ● addFollower(username, usernameToFollow)
+Start following a new user.
+DELETE ● removeFollower(username, usernameToRemove)
+Stop following a user.
+
+***TIMELINE
+/users/<username>
+GET - getUserTimeline(username)
+Returns recent tweets from a user.
+POST ● postTweet(username, text)
+Post a new tweet.
+
+/public
+GET ● getPublicTimeline()
+Returns recent tweets from all users.
+
+/users/<username>/home
+GET ● getHomeTimeline(username)
+Returns recent tweets from all users that this user follows.
+
