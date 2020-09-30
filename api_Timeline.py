@@ -70,7 +70,9 @@ def post_tweet(username):
     #request.form.get('')
     text = request.args.get('text')
     time = datetime.now()
+
     post = queries.post(username, text, time)
+    
     if post:
         return post
     else:
