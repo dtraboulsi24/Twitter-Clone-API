@@ -26,8 +26,8 @@ CREATE TABLE posts (
   post_time VARCHAR NOT NULL
 );
 
-INSERT INTO users(username, passhash, email) VALUES('John Doe','johndoe@gmail.com','password');
-INSERT INTO users(username, passhash, email) VALUES('Jane Doe','janedoe@gmail.com','password');
+INSERT INTO users(username, passhash, email) VALUES('JohnDoe','password','johndoe@gmail.com');
+INSERT INTO users(username, passhash, email) VALUES('JaneDoe','password','janedoe@gmail.com');
 
 INSERT INTO posts(user_id, post, post_time) VALUES(1,'John Doe is a cool dude!', "Yesterday");
 INSERT INTO posts(user_id, post, post_time) VALUES(2,'Jane Doe is a sick chick!', "Today");

@@ -29,7 +29,7 @@ def home():
 <p>A prototype Timeline API for microservice architecture</p>'''
 
 
-@app.route('/public', methods=['GET'])
+@app.route('/users/public', methods=['GET'])
 def get_public_timeline():
     app.logger.debug("public")
     public = queries.public_timeline()
@@ -42,38 +42,46 @@ def get_public_timeline():
 @app.route('/users/<string:username>/home', methods=['GET'])
 def get_home_timeline(username):
     app.logger.debug(username)
-    home = queries.home_timeline(name=username)
+    user_id = 1
+    home = queries.home_timeline(username=user_id)
+    app.logger.debug(home)
+
     if home:
-        return home # list(home)
+        return list(home) # list(home)
     else:
         raise exceptions.NotFound()
 
-
+#working
 @app.route('/users/<string:username>', methods=['GET', 'POST'])
 def users(username):
     if request.method == 'GET':
+        app.logger.debug(username)
         return get_user_timeline(username)
     elif request.method == 'POST':
+        app.logger.debug(username)
         return post_tweet(username)
 
-
+#working
 def get_user_timeline(username):
     app.logger.debug(username)
-    user = queries.user_timeline()
+    user = queries.user_timeline(username=username)
+    app.logger.debug(user)
     if user:
-        return user
+        return list(user)
     else:
         raise exceptions.NotFound()
 
-
+#Fix user username to user_ID
 def post_tweet(username):
     #request.form.get('')
     text = request.args.get('text')
-    time = datetime.now()
+    post_time = str(datetime.datetime.now())
+    app.logger.debug(text)
+    user_id = 1
 
-    post = queries.post(username, text, time)
-    
+    post = str(queries.post(username=user_id, text=text, post_time=post_time))
+    app.logger.debug(post)
     if post:
-        return post
+        return post, status.HTTP_201_CREATED
     else:
         raise exceptions.NotFound()
