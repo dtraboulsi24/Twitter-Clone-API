@@ -4,10 +4,6 @@ FLASK_APP=api_User flask init
 
 flask run / foreman start
 
-/api/v1/resources/users
-POST - createUser(username, email, password)
-Registers a new user account.
-
 ***USER
 /users
 POST - createUser(username, email, password)
