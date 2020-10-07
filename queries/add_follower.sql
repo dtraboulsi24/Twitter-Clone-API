@@ -1,5 +1,3 @@
--- :name add_follower :one
-SELECT * FROM posts
-WHERE user_id = :id
-ORDER BY post_time
-LIMIT 25;
+-- :name add_follower :insert
+INSERT INTO followers(username, usernameToFollow)
+VALUES(:username, :usernameToFollow)

@@ -1,5 +1,3 @@
--- :name remove_follower :one
-SELECT * FROM posts
-WHERE user_id = :id
-ORDER BY post_time
-LIMIT 25;
+-- :name remove_follower :insert
+DELETE FROM followers 
+WHERE username=:username AND usernameToFollow=:usernameToFollow;

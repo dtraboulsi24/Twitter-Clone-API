@@ -1,7 +1,7 @@
 # Microblog Microservice - Timeline
 
 import flask_api
-from flask import request
+from flask import request, jsonify
 from flask_api import status, exceptions
 import pugsql
 import datetime
@@ -31,9 +31,9 @@ def home():
 
 @app.route('/users/public', methods=['GET'])
 def get_public_timeline():
-    app.logger.debug("public")
     public = queries.public_timeline()
     if public:
+        #app.logger.debug(type(public))
         return list(public)
     else:
         raise exceptions.NotFound()
@@ -42,9 +42,9 @@ def get_public_timeline():
 @app.route('/users/<string:username>/home', methods=['GET'])
 def get_home_timeline(username):
     app.logger.debug(username)
-    user_id = 1
-    home = queries.home_timeline(username=user_id)
-    app.logger.debug(home)
+    home = queries.home_timeline(username=username)
+    app.logger.debug("***************")
+    app.logger.debug(type(home))
 
     if home:
         return list(home) # list(home)
@@ -64,24 +64,29 @@ def users(username):
 #working
 def get_user_timeline(username):
     app.logger.debug(username)
-    user = queries.user_timeline(username=username)
-    app.logger.debug(user)
-    if user:
-        return list(user)
+    home = queries.user_timeline(username=username)
+    app.logger.debug("***************")
+    app.logger.debug(type(home))
+    if home:
+        return list(home) # list(home)
     else:
         raise exceptions.NotFound()
 
 #Fix user username to user_ID
 def post_tweet(username):
-    #request.form.get('')
-    text = request.args.get('text')
     post_time = str(datetime.datetime.now())
-    app.logger.debug(text)
-    user_id = 1
-
-    post = str(queries.post(username=user_id, text=text, post_time=post_time))
-    app.logger.debug(post)
-    if post:
-        return post, status.HTTP_201_CREATED
-    else:
-        raise exceptions.NotFound()
+    user_data = request.data
+    posted_fields = {*user_data.keys()}
+    required_fields = {'text'}
+    if not required_fields <= posted_fields:
+        message = f'Missing fields: {required_fields - posted_fields}'
+        raise exceptions.ParseError(message)
+    try:
+        post = str(queries.post(username=username, text=user_data["text"], post_time=post_time))
+        app.logger.debug(post)
+        if post:
+            return post, status.HTTP_201_CREATED
+        else:
+            raise exceptions.NotFound()
+    except Exception as e:
+        return {'error': str(e)}, status.HTTP_409_CONFLICT

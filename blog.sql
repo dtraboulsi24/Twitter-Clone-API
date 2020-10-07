@@ -7,29 +7,28 @@ DROP TABLE IF EXISTS followers;
 DROP TABLE IF EXISTS posts;
 
 CREATE TABLE users (
-  user_id INTEGER PRIMARY KEY,
-  username VARCHAR NOT NULL,
-  passhash VARCHAR NOT NULL,
-  email VARCHAR NOT NULL
+  username VARCHAR PRIMARY KEY,
+  email VARCHAR NOT NULL,
+  password VARCHAR NOT NULL
 );
 
 CREATE TABLE followers (
-  id_user INTEGER NOT NULL REFERENCES users (user_id),
-  id_following INTEGER NOT NULL REFERENCES users (user_id),
-  PRIMARY KEY (id_user, id_following)
+  username VARCHAR REFERENCES users(username),
+  usernameToFollow VARCHAR REFERENCES users(username),
+  PRIMARY KEY (username, usernameToFollow)
 );
 
 CREATE TABLE posts (
   post_id INTEGER PRIMARY KEY,
-  user_id INTEGER REFERENCES users(user_id),
-  post VARCHAR NOT NULL,
-  post_time VARCHAR NOT NULL
+  username VARCHAR REFERENCES users(username),
+	text VARCHAR,
+  post_time VARCHAR
 );
 
-INSERT INTO users(username, passhash, email) VALUES('JohnDoe','password','johndoe@gmail.com');
-INSERT INTO users(username, passhash, email) VALUES('JaneDoe','password','janedoe@gmail.com');
+INSERT INTO users(username, email, password) VALUES('JohnDoe','johndoe@gmail.com','password');
+INSERT INTO users(username, email, password) VALUES('JaneDoe','janedoe@gmail.com','password');
 
-INSERT INTO posts(user_id, post, post_time) VALUES(1,'John Doe is a cool dude!', "Yesterday");
-INSERT INTO posts(user_id, post, post_time) VALUES(2,'Jane Doe is a sick chick!', "Today");
+INSERT INTO posts(username, text, post_time) VALUES('JohnDoe', 'John Doe is a cool dude!', "0000002");
+INSERT INTO posts(username, text, post_time) VALUES('JaneDoe', 'Jane Doe is a sick chick!', "0000001");
 
 COMMIT;

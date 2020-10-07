@@ -1,27 +1,9 @@
 # Microblog Microservice - User
-# <https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask>.
-#
-# What's new:
-#
-#  * Switched from Flask to Flask API
-#    <https://www.flaskapi.org>
-#
-#  * Switched to PugSQL for database access
-#    <https://pugsql.org>
-#
-#  * SQLAlchemy Database URL specified in app config file
-#
-#  * Adds CLI command to create initial schema from "Using SQLite 3 with Flask"
-#    <https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/>
-#
-#  * New API calls:
-#    - GET /api/v1/resources/books/{id} to retrieve a specific book
-#    - POST /api/v1/resources/books to create a new book
-#
 
 import flask_api
-from flask import request
+from flask import request, jsonify
 from flask_api import status, exceptions
+from werkzeug.security import generate_password_hash, check_password_hash
 import pugsql
 
 
@@ -57,104 +39,73 @@ def all_users():
 
 @app.route('/users', methods=['POST'])
 def create_user():
-    username = request.data['username']
-    email = request.data['email']
-    password = request.data['password']
+    user_data = request.data
+    posted_fields = {*user_data.keys()}
+    required_fields = {'username', 'email', 'password'}
+    if not required_fields <= posted_fields:
+        message = f'Missing fields: {required_fields - posted_fields}'
+        raise exceptions.ParseError(message)
+    #user_data["password"] = generate_password_hash(user_data['password'], "sha256")
     try:
-        app.logger.debug(username)
-        user = queries.create_user(username, email, password)
-        return user #, status.HTTP_201_CREATED, {
-     #'Location': #f'/users/{user["id"]}'
-     #}
+        app.logger.info("*********************")
+        app.logger.info(user_data)
+        user = queries.create_user(**user_data)
+        return jsonify(user) #, status.HTTP_201_CREATED, {
+        #'Location': #f'/users/{user["id"]}'
+        #}
     except Exception as e:
         return {'error': str(e)}, status.HTTP_409_CONFLICT
 
     
 
-@app.route('/users/auth', methods=['POST'])
-def authenticate_user(query_parameters):
-    id = query_parameters.get('id')
-    username = query_parameters.get('username')
-    hashed_password = query_parameters.get('hashed_password')
-
-    query = "SELECT * FROM users WHERE"
-    to_filter = []
-
-    if id:
-        query += ' id=? AND'
-        to_filter.append(id)
-    if username:
-        query += ' username=? AND'
-        to_filter.append(username)
-    if hashed_password:
-        query += ' hashed_password=? AND'
-        to_filter.append(hashed_password)
-    if not (id or username or hashed_password):
-        raise exceptions.NotFound()
-
-    query = query[:-4] + ';'
-
-    results = queries.engine.execute(query, to_filter).fetchall()
-
-    return list(map(dict, results))
-
-@app.route('/users/<username>/follow', methods=['PUT', 'DELETE'])
-def users():
-    if request.method == 'PUT':
-        return add_follower(request.args)
-    elif request.method == 'DELETE':
-        return remove_follower(request.data)
+@app.route('/auth', methods=['POST'])
+def authenticate_user():
+    user_data = request.data
+    posted_fields = {*user_data.keys()}
+    required_fields = {'username', 'password'}
+    if not required_fields <= posted_fields:
+        message = f'Missing fields: {required_fields - posted_fields}'
+        raise exceptions.ParseError(message)
+    try:
+        app.logger.info("*********************")
+        password = queries.authenticate_user(**user_data)
+        app.logger.info(user_data["password"])
+        app.logger.info(password["password"])
+        if user_data["password"] == password["password"]:
+            return jsonify(True) #, status.HTTP_201_CREATED, {
+        #'Location': #f'/users/{user["id"]}'
+        #}
+        else:
+            return jsonify(False)
+    except Exception as e:
+        return {'error': str(e)}, status.HTTP_409_CONFLICT
 
 
-def add_follower(query_parameters):
-    id = query_parameters.get('id')
-    username = query_parameters.get('username')
-    username_to_follow = query_parameters.get('usernameToFollow')
+@app.route('/follow', methods=['PUT'])
+def add_follower():
+    user_data = request.data
+    posted_fields = {*user_data.keys()}
+    required_fields = {'username', 'usernameToFollow'}
+    if not required_fields <= posted_fields:
+        message = f'Missing fields: {required_fields - posted_fields}'
+        raise exceptions.ParseError(message)
+    try:
+        follow = queries.add_follower(**user_data)
+        return jsonify(follow)
+    except Exception as e:
+        return {'error': str(e)}, status.HTTP_409_CONFLICT
+    
 
-    query = "SELECT * FROM users WHERE"
-    to_filter = []
-
-    if id:
-        query += ' id=? AND'
-        to_filter.append(id)
-    if username:
-        query += ' username=? AND'
-        to_filter.append(username)
-    if username_to_follow:
-        query += ' usernameToFollow=? AND'
-        to_filter.append(username_to_follow)
-    if not (id or username or username_to_follow):
-        raise exceptions.NotFound()
-
-    query = query[:-4] + ';'
-
-    results = queries.engine.execute(query, to_filter).fetchall()
-
-    return list(map(dict, results))
-
-
-def remove_follower(query_parameters):
-    id = query_parameters.get('id')
-    username = query_parameters.get('username')
-    remove_follower = query_parameters.get('removeFollower')
-
-    query = "SELECT * FROM users WHERE"
-    to_filter = []
-
-    if id:
-        query += ' id=? AND'
-        to_filter.append(id)
-    if username:
-        query += ' username=? AND'
-        to_filter.append(username)
-    if remove_follower:
-        query += ' removeFollower=? AND'
-        to_filter.append(remove_follower)
-    if not (id or username or remove_follower):
-        raise exceptions.NotFound()
-
-    query = query[:-4] + ';'
-
-    results = queries.engine.execute(query, to_filter).fetchall()
-
-    return list(map(dict, results))
+@app.route('/unfollow', methods=['DELETE'])
+def remove_follower():
+    user_data = request.data
+    posted_fields = {*user_data.keys()}
+    required_fields = {'username', 'usernameToFollow'}
+    if not required_fields <= posted_fields:
+        message = f'Missing fields: {required_fields - posted_fields}'
+        raise exceptions.ParseError(message)
+    try:
+        follow = queries.remove_follower(**user_data)
+        return jsonify(follow)
+    except Exception as e:
+        return {'error': str(e)}, status.HTTP_409_CONFLICT

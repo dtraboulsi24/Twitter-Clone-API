@@ -38,3 +38,21 @@ Returns recent tweets from all users.
 GET ● getHomeTimeline(username)
 Returns recent tweets from all users that this user follows.
 
+User:
+http POST http://127.0.0.1:5100/users email=test1@gmail.com password=password username=test1
+http POST http://127.0.0.1:5100/auth password=password username=test1
+http PUT http://127.0.0.1:5100/follow username=JohnDoe usernameToFollow=JaneDoe
+http DELETE http://127.0.0.1:5100/unfollow username=JohnDoe usernameToFollow=JaneDoe
+
+Timeline:
+http GET http://127.0.0.1:5000/users/JohnDoe/home
+http POST http://127.0.0.1:5000/users/JohnDoe
+http POST http://127.0.0.1:5000/users/JohnDoe text="This is another post"
+http GET http://127.0.0.1:5000/users/public
+
+
+http POST http://127.0.0.1:5100/users email=test1@gmail.com password=password username=test1
+http POST http://127.0.0.1:5100/auth password=password username=test1
+http PUT http://127.0.0.1:5100/follow username=test1 usernameToFollow=JaneDoe
+http GET http://127.0.0.1:5000/users/test1/home
+http POST http://127.0.0.1:5000/users/test1 text="This is another post"
