@@ -58,12 +58,6 @@ Example:	http GET http://127.0.0.1:5000/users/public
 Endpoint:	/users/<username>/home
 Type:		GET ● getHomeTimeline(username)
 Description: 	Returns recent tweets from all users that this user follows.
-Example:	http GET http://127.0.0.1:5000/users/JohnDoe/home
-(I could not get the right SQL query to return all the followers post in order, but everything else should be fully functional)
+Example:	http GET http://127.0.0.1:5000/users/test1/home
 
-EXTRA:
-Endpoint:	/api/v1/test/users
-Type:		GET ● getUsers()
-Description: 	Returns all users.
-Example:	http://127.0.0.1:5100/api/v1/test/users
 
